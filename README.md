@@ -40,6 +40,10 @@ function getLojasMinimasPorNome(req, res, next) {
   
   // Última parte: faça a consulta do PostgreSQL.
   /*
+    Todas as tabelas e funções atualmente disponíveis estão descritas no arquivo database.sql.
+    Se o método que você estiver fazendo não tiver uma função do postgres equivalente ainda, escreva um nome de qualquer forma que quando a função for criada, usará o mesmo nome que você deu.
+    Ex: select * from buscarLojaPorId($1) as loja
+
     Todas as consultas são feitas do mesmo jeito, e nada do código precisa ser alterado exceto a consulta SQL e as variáveis no array depois da vírgula:
     usa-se db.one por que o Postgres sempre retorna uma linha
     e a função é chamada usando select * from nomedaFuncao(argumentos) as lojas/loja/resultados/historicos/etc.
