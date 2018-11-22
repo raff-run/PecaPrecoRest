@@ -5,6 +5,27 @@ agora em node.js!
 Exemplo de método rest:
 
 ```javascript
+/* Aqui você deve tirar os comentários do método que você fez para poder testar.
+ Após fazer isso, vá em app.js e adicione uma linha router.get ou post('uri', db.<nomedasuafuncao>)
+ Exemplos:
+ //Rest
+  router.get('/api/lerListaLojas', db.getPaginaLojasCompletas);
+  router.get('/api/lerListaHistorico', db.getPaginaHistoricos);
+  router.get('/api/buscarLojasPorNome', db.getLojasMinimasPorNome);
+ */
+module.exports = {
+  getPaginaLojasCompletas: getPaginaLojasCompletas,
+  getPaginaHistoricos: getPaginaHistoricos,
+  getLojasMinimasPorNome: getLojasMinimasPorNome//,
+  //getLojaCompleta: getLojaCompleta,
+  //getCarroUsuario: getCarroUsuario,
+  //postCriarUsuario: postCriarUsuario,
+  //postCriarSessao: postCriarSessao,
+  //postCriarHistorico: postCriarSessao,
+  //postCriarCarroUsuario: postCriarCarroUsuario,
+  //postUploadHistorico: postUploadHistorico
+};
+
 // A função sempre recebe esses três parâmetros
 // Escolha um nome auto-explicativo
 function getLojasMinimasPorNome(req, res, next) {
