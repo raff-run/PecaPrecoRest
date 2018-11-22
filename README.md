@@ -13,6 +13,8 @@ function getLojasMinimasPorNome(req, res, next) {
   /*
     req.query.<nome do parametro> = Traz os parâmetros passados em qualquer método HTTP exceto POST.
 
+    req.body.<nome do parametro> = parece ser a função que funciona pra post especificamente.
+
     Para números, use parseInt(req.query.<nome>) ou parseFloat
   */
   // Segunda parte: preparação das variáveis
