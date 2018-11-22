@@ -52,11 +52,10 @@ function getPaginaLojasCompletas(req, res, next) {
 
 // Pega uma lista de nomes e ids de lojas ao ser fornecido parte de um nome
 function getLojasMinimasPorNome(req, res, next) {
-  let regex = new RegExp('^[a-zA-Z]+( *\\p{L}*)*$/u'); // prevenção de injection
   var parteNome = req.query.nome;
   parteNome = parteNome.trim();
   console.log(parteNome);
-  if(typeof parteNome == 'undefined' || !regex.test(parteNome) || parteNome == ""){
+  if(typeof parteNome == 'undefined' || parteNome == ""){
     res.status(400);
     res.send('Parâmetros inválidos.');
     return;
