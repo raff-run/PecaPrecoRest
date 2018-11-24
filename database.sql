@@ -43,8 +43,7 @@ CREATE TABLE public.tab_usuarios
 (
     pk_id_usuario SERIAL,
     cidade character varying(255)  NOT NULL,
-    email character varying(255)  NOT NULL,
-    login character varying(30)  UNIQUE NOT NULL,
+    email character varying(30) UNIQUE NOT NULL,
     nome character varying(255)  NOT NULL,
     senha character varying(20)  NOT NULL,
     uf character varying(2)  NOT NULL,
@@ -191,8 +190,8 @@ end;
 $$ 
 language plpgsql;
 
--- Retorna a senha e o id de um usuário ao receber um login
-create or replace function buscarUsuarioPorLogin(varchar(255))  
+-- Retorna a senha e o id de um usuário ao receber um Email
+create or replace function buscarUsuarioPorEmail(varchar(255))  
 returns setof json
 as $$
 begin 
@@ -201,7 +200,7 @@ begin
 					from (
 					  select u.pk_id_usuario, u.senha
 					  from tab_usuarios u
-						where u.login = $1
+						where u.email = $1
 					) t;
 end;
 $$ 

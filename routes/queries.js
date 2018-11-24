@@ -50,24 +50,24 @@ function getPaginaLojasCompletas(req, res, next) {
 
 }
 
-// Cria uma sessão a partir de um login e uma senha
+// Cria uma sessão a partir de um email e uma senha
 function postCriarSessao(req, res, next) {
-  var login = req.body.login;
+  var email = req.body.email;
   var senha = req.body.senha;
 
-  if (typeof login == "undefined" || login == "" || typeof senha == "undefined" || senha == "") {
+  if (typeof email == "undefined" || email == "" || typeof senha == "undefined" || senha == "") {
     res.status(400);
     res.send('Parâmetros inválidos.');
     return;
   }
   
-  db.one('select * from buscarUsuarioPorLogin($1) as resultado', [login])
+  db.one('select * from buscarUsuarioPorEmail($1) as resultado', [email])
     .then(function (data) {
       //var dataJSON = JSON.parse(data);
       console.log("Senha Fornecida: " + senha + " Senha guardada: " + data.resultado.senha);
       if (data.resultado.senha == senha) {
         console.log("Senha correta!");
-        var token = login + senha + new Date().toISOString();
+        var token = email + senha + new Date().toISOString();
         db.none('insert into tab_sessoes(token,fk_id_usuario) VALUES($1, $2)', [token, data.resultado.pk_id_usuario])
         .then(function (data) {
           var respostaJSON = '{ "token": "' + token + '"}';
@@ -79,7 +79,7 @@ function postCriarSessao(req, res, next) {
         });
       } else {
         res.status(403);
-        res.send('Senha/login inválidos.');
+        res.send('Senha/email inválidos.');
         return;
       }
     })
