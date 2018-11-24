@@ -161,7 +161,7 @@ CREATE TABLE public.tab_sessoes
 (
     pk_id_sessao SERIAL,
     token character varying(255)  UNIQUE NOT NULL,
-    validoate timestamp without time zone NOT NULL,
+    validoate timestamp without time zone NOT NULL DEFAULT now() + interval '30 days',
     fk_id_usuario integer,
     CONSTRAINT tab_sessoes_pkey PRIMARY KEY (pk_id_sessao),
     FOREIGN KEY (fk_id_usuario)
@@ -186,6 +186,22 @@ begin
 					  from tab_lojas l
 						where l.nome ILIKE nomeBuscaLike
 						LIMIT 15
+					) t;
+end;
+$$ 
+language plpgsql;
+
+-- Retorna a senha e o id de um usuário ao receber um login
+create or replace function buscarUsuarioPorLogin(varchar(255))  
+returns setof json
+as $$
+begin 
+		
+  return query select row_to_json(t) as usuarios
+					from (
+					  select u.pk_id_usuario, u.senha
+					  from tab_usuarios u
+						where u.login = $1
 					) t;
 end;
 $$ 

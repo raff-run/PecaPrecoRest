@@ -17,7 +17,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(logger('dev'));
-app.use(express.json());
+//app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -44,8 +44,8 @@ app.use(function(err, req, res, next) {
 router.get('/api/lerListaLojas', db.getPaginaLojasCompletas);
 router.get('/api/lerListaHistorico', db.getPaginaHistoricos);
 router.get('/api/buscarLojasPorNome', db.getLojasMinimasPorNome);
-//router.put('/api/puppies/:id', db.updatePuppy);
-//router.delete('/api/puppies/:id', db.removePuppy);
+router.post('/api/registrarHistorico', db.postCriarHistorico);
+router.post('/api/login', db.postCriarSessao);
 
 //Exports
 module.exports = app, router;
