@@ -61,9 +61,8 @@ function postCriarSessao(req, res, next) {
     return;
   }
   
-  db.one('select * from buscarUsuarioPorEmail($1) as resultado', [email])
+  db.one('select * from buscarUsuarioPorEmail(\'$1\') as resultado', [email])
     .then(function (data) {
-      //var dataJSON = JSON.parse(data);
       console.log("Senha Fornecida: " + senha + " Senha guardada: " + data.resultado.senha);
       if (data.resultado.senha == senha) {
         console.log("Senha correta!");
@@ -169,7 +168,7 @@ function getLojasMinimasPorNome(req, res, next) {
     return;
   }
 
-  db.one('select * from buscarLojasPorNome($1) as resultados', [parteNome])
+  db.one('select * from buscarLojasPorNome(\'$1\') as resultados', [parteNome])
     .then(function (data) {
       res.status(200).send(data);
     })
