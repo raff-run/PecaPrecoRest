@@ -44,8 +44,14 @@ app.use(function(err, req, res, next) {
 router.get('/api/lerListaLojas', db.getPaginaLojasCompletas);
 router.get('/api/lerListaHistorico', db.getPaginaHistoricos);
 router.get('/api/buscarLojasPorNome', db.getLojasMinimasPorNome);
+router.get('/api/lerLojaPorId', db.getLojaCompleta);
+router.get('/api/lerCarroUsuario', db.getCarroUsuario);
 router.post('/api/registrarHistorico', db.postCriarHistorico);
 router.post('/api/login', db.postCriarSessao);
+router.post('/api/registrarUsuario', db.postCriarUsuario);
+router.post('/api/registrarCarroUsuario', db.postCriarCarroUsuario);
+//router.post('/api/uploadHistorico', db.postUploadHistorico);
+
 
 //Exports
 module.exports = app, router;

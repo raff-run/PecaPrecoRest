@@ -20,12 +20,12 @@ module.exports = {
   getPaginaLojasCompletas: getPaginaLojasCompletas,
   getPaginaHistoricos: getPaginaHistoricos,
   getLojasMinimasPorNome: getLojasMinimasPorNome,
-  //getLojaCompleta: getLojaCompleta,
-  //getCarroUsuario: getCarroUsuario,
-  //postCriarUsuario: postCriarUsuario,
+  getLojaCompleta: getLojaCompleta,
+  getCarroUsuario: getCarroUsuario,
+  postCriarUsuario: postCriarUsuario,
   postCriarSessao: postCriarSessao,
-  postCriarHistorico: postCriarHistorico//,
-  //postCriarCarroUsuario: postCriarCarroUsuario,
+  postCriarHistorico: postCriarHistorico,
+  postCriarCarroUsuario: postCriarCarroUsuario
   //postUploadHistorico: postUploadHistorico
 };
 
@@ -50,6 +50,106 @@ function getPaginaLojasCompletas(req, res, next) {
 
 }
 
+// Pega uma única loja por ID.
+function getLojaCompleta(req, res, next) {
+  var lojaId = parseInt(req.query.lojaId);
+
+  if (isNaN(lojaId)) {
+    res.status(400);
+    res.send('Parâmetros inválidos.');
+    return;
+  }
+
+  db.one('select * from lerLojaCompletaJson($1) as loja', [lojaId])
+    .then(function (data) {
+      res.status(200).send(data);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
+}
+
+// Pega um único carroUsuario por ID
+function getCarroUsuario(req, res, next) {
+  var carroId = parseInt(req.query.carroId);
+
+  if (isNaN(carroId)) {
+    res.status(400);
+    res.send('Parâmetros inválidos.');
+    return;
+  }
+
+  db.one('select * from lerCarroUsuarioJson($1) as carro', [carroId])
+    .then(function (data) {
+      res.status(200).send(data);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
+}
+
+// Cria uma usuário a partir de seus dados pessoais.
+function postCriarUsuario(req, res, next) {
+  var nome = req.body.nome;
+  var cidade = req.body.cidade;
+  var uf = req.body.uf;
+  var email = req.body.email;
+  var senha = req.body.senha;
+
+  if (typeof email == "undefined" || email == "" || typeof senha == "undefined" || senha == ""
+  || typeof nome == "undefined" || nome == ""
+  || typeof cidade == "undefined" || cidade == ""
+  || typeof uf == "undefined" || uf == "") {
+    res.status(400);
+    res.send('Parâmetros inválidos.');
+    return;
+  }
+
+  db.none('insert into tab_usuarios(nome, cidade, uf, email, senha) VALUES($1, $2, $3, $4, $5)', [nome, cidade, uf, email, senha])
+    .then(function (data) {
+      res.status(201).send(data);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
+}
+
+// Registra o carro de um usuário.
+function postCriarCarroUsuario(req, res, next) {
+  var anoFabricacao = parseInt(req.body.anoFabricacao);
+  var chassi = req.body.chassi;
+  var diaCompra = parseInt(req.body.diaCompra);
+  var mesCompra = parseInt(req.body.mesCompra);
+  var anoCompra = parseInt(req.body.anoCompra);
+  var quilometragem = parseInt(req.body.quilometragem);
+  var fk_id_carro = parseInt(req.body.idCarro);
+  var fk_id_usuario = parseInt(req.body.idUsuario);
+  var dataCompra;
+
+  if (isNaN(anoFabricacao) || typeof chassi == "undefined" || chassi == ""
+  || isNaN(diaCompra) || isNaN(mesCompra) || isNaN(anoCompra)
+  || isNaN(quilometragem) || isNaN(fk_id_carro) || isNaN(fk_id_usuario)) {
+    res.status(400);
+    res.send('Parâmetros inválidos.');
+    return;
+  }
+  
+  dataCompra = new Date(anoCompra, mesCompra, diaCompra);
+
+  db.none('insert into tab_carros_usuario(chassi, anoFabricacao, data_compra, quilometragem, fk_id_usuario, fk_id_carro) VALUES($1, $2, $3, $4, $5, $6)',
+   [chassi, anoFabricacao, dataCompra.toISOString(), quilometragem, fk_id_usuario, fk_id_carro])
+    .then(function (data) {
+      res.status(201).send(data);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
+}
+
 // Cria uma sessão a partir de um email e uma senha
 function postCriarSessao(req, res, next) {
   var email = req.body.email;
@@ -60,22 +160,22 @@ function postCriarSessao(req, res, next) {
     res.send('Parâmetros inválidos.');
     return;
   }
-  
-  db.one('select * from buscarUsuarioPorEmail(\'$1\') as resultado', [email])
+
+  db.one('select * from buscarUsuarioPorEmail($1) as resultado', [email])
     .then(function (data) {
       console.log("Senha Fornecida: " + senha + " Senha guardada: " + data.resultado.senha);
       if (data.resultado.senha == senha) {
         console.log("Senha correta!");
         var token = email + senha + new Date().toISOString();
         db.none('insert into tab_sessoes(token,fk_id_usuario) VALUES($1, $2)', [token, data.resultado.pk_id_usuario])
-        .then(function (data) {
-          var respostaJSON = '{ "token": "' + token + '"}';
-          res.status(200).send(JSON.parse(respostaJSON));
-        })
-        .catch(function (err) {
-          res.status(500);
-          res.send('A sessão não pode ser criada. Tente novamente mais tarde.');
-        });
+          .then(function (data) {
+            var respostaJSON = '{ "token": "' + token + '"}';
+            res.status(200).send(JSON.parse(respostaJSON));
+          })
+          .catch(function (err) {
+            res.status(500);
+            res.send('A sessão não pode ser criada. Tente novamente mais tarde.');
+          });
       } else {
         res.status(403);
         res.send('Senha/email inválidos.');

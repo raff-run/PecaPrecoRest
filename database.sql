@@ -226,7 +226,7 @@ begin
 	end if;
 	
 		
-  return query select json_agg(row_to_json(t)) as lojas
+  return query select json_agg(row_to_json(t)) as historicos
 					from (
 					  select h.pk_id_historico, h.dadosobd, h.latitudepartida, h.longitudepartida, h.latitudechegada, h.longitudechegada, h.dataHoraEnvio, car.fk_id_usuario
 					  from tab_historicos h join tab_carros_usuario car ON (h.fk_id_carrousuario = car.pk_id_carro_usuario)
@@ -257,6 +257,50 @@ begin
 						  ) d
 						) as servicos
 					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) LIMIT $1 OFFSET $2
+					) t;
+end;
+$$ 
+language plpgsql;
+
+create or replace function lerCarroUsuarioJson(integer)  
+returns setof json
+as $$
+begin 
+  return query select row_to_json(t) as carro
+					from (
+					  select carUsu.pk_id_carro_usuario, carUsu.chassi,
+						carUsu.anofabricacao, carUsu.data_compra, carUsu.quilometragem,
+						carUsu.fk_id_carro, carUsu.fk_id_usuario,
+						car.ano as versao, car.detalhe,
+						modelo.nome as nomeModelo, f.nome as nomeFabricante
+					  from tab_carros_usuario carUsu JOIN tab_carros car ON (carUsu.fk_id_carro = car.pk_id_carro)
+						JOIN tab_modelos modelo ON (modelo.pk_id_modelo = car.fk_modelo)
+						JOIN tab_fabricantes f ON (f.pk_id_fabricante = car.fk_fabricante)
+						WHERE carUsu.pk_id_carro_usuario = $1
+					) t;
+end;
+$$ 
+language plpgsql;
+
+create or replace function lerLojaCompletaJson(integer)  
+returns setof json
+as $$
+begin 
+  return query select row_to_json(t) as loja
+					from (
+					  select l1.pk_id_loja, l1.nome, l1.cnpj, f.nome as autorizada,
+						(
+						  select array_to_json(array_agg(row_to_json(d)))
+						  from (
+							select s.nome, ps.preco
+							from tab_servicos s
+							  join tab_presta_servicos ps ON (s.pk_id_servico = ps.fk_id_servico)
+							  join tab_lojas l ON (l.pk_id_loja = ps.fk_id_loja)
+							  where l.pk_id_loja = l1.pk_id_loja
+							order by nome asc
+						  ) d
+						) as servicos
+					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) WHERE l1.pk_id_loja = $1
 					) t;
 end;
 $$ 
