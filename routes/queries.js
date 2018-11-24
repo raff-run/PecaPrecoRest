@@ -268,8 +268,10 @@ function getLojasMinimasPorNome(req, res, next) {
     return;
   }
 
-  db.one('select * from buscarLojasPorNome(\'$1\') as resultados', [parteNome])
+  db.one('select * from buscarLojasPorNome($1) as resultados', [parteNome])
     .then(function (data) {
+      console.log(resultados[0].data.nome);
+      console.log(resultados[1].data.nome);
       res.status(200).send(data);
     })
     .catch(function (err) {
