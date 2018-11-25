@@ -117,7 +117,7 @@ CREATE TABLE public.tab_lojas
     nome character varying(255)  NOT NULL,
     fk_endereco integer,
     fk_fabricante integer,
-    imagem oid,
+    imagem bytea,
     CONSTRAINT tab_lojas_pkey PRIMARY KEY (pk_id_loja),
     FOREIGN KEY (fk_endereco)
         REFERENCES public.tab_enderecos (pk_id_endereco) 
