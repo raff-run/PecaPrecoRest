@@ -255,8 +255,8 @@ begin
 							  where l.pk_id_loja = l1.pk_id_loja
 							order by nome asc
 						  ) d
-						) as servicos
-					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) LIMIT $1 OFFSET $2
+						) as servicos, e.latitude, e.longitude, e.uf
+					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) LEFT OUTER JOIN tab_enderecos e ON (l1.fk_endereco = e.pk_id_endereco) LIMIT $1 OFFSET $2
 					) t;
 end;
 $$ 
@@ -299,8 +299,8 @@ begin
 							  where l.pk_id_loja = l1.pk_id_loja
 							order by nome asc
 						  ) d
-						) as servicos
-					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) WHERE l1.pk_id_loja = $1
+						) as servicos, e.*
+					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) LEFT OUTER JOIN tab_enderecos e ON (l1.fk_endereco = e.pk_id_endereco)  WHERE l1.pk_id_loja = $1
 					) t;
 end;
 $$ 
