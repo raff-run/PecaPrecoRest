@@ -25,7 +25,9 @@ module.exports = {
   postCriarUsuario: postCriarUsuario,
   postCriarSessao: postCriarSessao,
   postCriarHistorico: postCriarHistorico,
-  postCriarCarroUsuario: postCriarCarroUsuario
+  postCriarCarroUsuario: postCriarCarroUsuario,
+  getPaginaLojasCompletasPorNome : getPaginaLojasCompletasPorNome,
+  getUsuarioSessao : getUsuarioSessao,
   //postUploadHistorico: postUploadHistorico
 };
 
@@ -41,6 +43,35 @@ function getPaginaLojasCompletas(req, res, next) {
   }
 
   db.one('select lerQuantLojasCompletaJson($1,$2) as lojas', [quantLojas, lojaIndex])
+    .then(function (data) {
+      res.status(200).send(data);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
+}
+
+// Pega uma página de lojas ao dar parte do nome, a quantidade de lojas em uma "página" e a sua posição na "página"
+function getPaginaLojasCompletasPorNome(req, res, next) {
+  var quantLojas = parseInt(req.query.quant);
+  var lojaIndex = parseInt(req.query.index);
+  var parteNome = req.query.nome;
+  parteNome = parteNome.trim();
+  console.log(parteNome);
+
+  if(typeof parteNome == 'undefined' || parteNome == ""){
+    getPaginaLojasCompletas(req, res, next);
+    return;
+  }
+
+  if (isNaN(quantLojas) || isNaN(lojaIndex)) {
+    res.status(400);
+    res.send('Parâmetros inválidos.');
+    return;
+  }
+
+  db.one('select lerQuantLojasCompletaNomeJson($1,$2,$3) as lojas', [quantLojas, lojaIndex, parteNome])
     .then(function (data) {
       res.status(200).send(data);
     })
@@ -69,6 +100,26 @@ function getLojaCompleta(req, res, next) {
     });
 
 }
+
+function getUsuarioSessao(req, res, next) {
+  var token = req.query.token;
+
+  if (typeof token == 'undefined' || token == "") {
+    res.status(403);
+    res.send('Token inválido.');
+    return;
+  }
+
+  db.one('select * from buscarUsuarioPorSessao($1) as usuario', [token])
+    .then(function (data) {
+      res.status(200).send(data);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
+}
+
 
 // Pega um único carroUsuario por ID
 function getCarroUsuario(req, res, next) {

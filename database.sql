@@ -96,12 +96,12 @@ CREATE TABLE public.tab_enderecos
 (
     pk_id_endereco SERIAL,
     bairro character varying(255) NOT NULL,
-    cep integer NOT NULL,
+    cep character varying(9) NOT NULL,
     cidade character varying(255) NOT NULL,
     complemento character varying(255) NOT NULL,
-    latitude integer NOT NULL,
+    latitude NUMERIC(10,7) NOT NULL,
     logradouro character varying(255) NOT NULL,
-    longitude integer NOT NULL,
+    longitude NUMERIC(10,7) NOT NULL,
     numero character varying(255) NOT NULL,
     referencia character varying(255) NOT NULL,
     uf character varying(2) NOT NULL,
@@ -190,6 +190,34 @@ end;
 $$ 
 language plpgsql;
 
+create or replace function lerQuantLojasCompletaNomeJson(integer, integer, varchar)  
+returns setof json
+as $$
+DECLARE
+nomeBuscaLike varchar := ('%'|| $3 || '%');
+begin 
+  return query select json_agg(row_to_json(t) order by length(nome) asc) as lojas
+					from (
+					  select l1.pk_id_loja, l1.nome, l1.cnpj, f.nome as autorizada, encode(l1.imagem, 'base64') as imagem,
+						(
+						  select array_to_json(array_agg(row_to_json(d)))
+						  from (
+							select s.nome, ps.preco
+							from tab_servicos s
+							  join tab_presta_servicos ps ON (s.pk_id_servico = ps.fk_id_servico)
+							  join tab_lojas l ON (l.pk_id_loja = ps.fk_id_loja)
+							  where l.pk_id_loja = l1.pk_id_loja
+							order by nome asc
+						  ) d
+						) as servicos, e.latitude, e.longitude, e.uf, e.cidade, e.bairro, e.cep, e.numero, e.logradouro
+					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) LEFT OUTER JOIN tab_enderecos e ON (l1.fk_endereco = e.pk_id_endereco)
+					  WHERE l1.nome ILIKE nomeBuscaLike
+					  LIMIT $1 OFFSET $2
+					) t;
+end;
+$$ 
+language plpgsql;
+
 -- Retorna a senha e o id de um usuário ao receber um Email
 create or replace function buscarUsuarioPorEmail(varchar(255))  
 returns setof json
@@ -244,7 +272,7 @@ as $$
 begin 
   return query select json_agg(row_to_json(t)) as lojas
 					from (
-					  select l1.pk_id_loja, l1.nome, l1.cnpj, f.nome as autorizada,
+					  select l1.pk_id_loja, l1.nome, l1.cnpj, f.nome as autorizada, encode(l1.imagem, 'base64') as imagem,
 						(
 						  select array_to_json(array_agg(row_to_json(d)))
 						  from (
@@ -255,8 +283,24 @@ begin
 							  where l.pk_id_loja = l1.pk_id_loja
 							order by nome asc
 						  ) d
-						) as servicos, e.latitude, e.longitude, e.uf
+						) as servicos, e.latitude, e.longitude, e.uf, e.cidade, e.bairro, e.cep, e.numero, e.logradouro
 					  from tab_lojas l1 LEFT OUTER JOIN tab_fabricantes f ON (l1.fk_fabricante = f.pk_id_fabricante) LEFT OUTER JOIN tab_enderecos e ON (l1.fk_endereco = e.pk_id_endereco) LIMIT $1 OFFSET $2
+					) t;
+end;
+$$ 
+language plpgsql;
+
+-- Busca um usuário pelo seu token de sessão
+create or replace function buscarUsuarioPorSessao(varchar(255))  
+returns setof json
+as $$
+begin 
+		
+  return query select row_to_json(t) as usuario
+					from (
+					  select u.pk_id_usuario
+					  from tab_usuarios u LEFT OUTER JOIN tab_sessoes s ON (u.pk_id_usuario = s.fk_id_usuario)
+						where s.token = $1 AND validoate > now()
 					) t;
 end;
 $$ 
@@ -305,3 +349,9 @@ begin
 end;
 $$ 
 language plpgsql;
+
+-- INSERTS
+
+
+insert into tab_enderecos(bairro, cep, cidade, complemento, latitude, logradouro, longitude, numero, referencia, uf)
+VALUES ('25 de agosto', '25075-135', 'Duque de Caxias', '', -22.7927044, 'Evaristo da Veiga', -43.2946794, '131', 'Na frente da "Costela na Brasa"', 'RJ')

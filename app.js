@@ -48,8 +48,10 @@ app.use(function (err, req, res, next) {
 //Rest
 app.options('*', cors());
 router.get('/api/lerListaLojas', db.getPaginaLojasCompletas);
+router.get('/api/lerUsuarioPorSessao', db.getUsuarioSessao);
 router.get('/api/lerListaHistorico', db.getPaginaHistoricos);
 router.get('/api/buscarLojasPorNome', db.getLojasMinimasPorNome);
+router.get('/api/buscarLojasCompletasPorNome', db.getPaginaLojasCompletasPorNome);
 router.get('/api/lerLojaPorId', db.getLojaCompleta);
 router.get('/api/lerCarroUsuario', db.getCarroUsuario);
 router.post('/api/registrarHistorico', db.postCriarHistorico);
