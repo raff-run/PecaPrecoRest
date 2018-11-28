@@ -234,6 +234,29 @@ end;
 $$ 
 language plpgsql;
 
+CREATE OR REPLACE FUNCTION public.buscarServicospornome(
+	character varying)
+    RETURNS SETOF json 
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+    ROWS 1000
+AS $BODY$
+
+DECLARE
+	nomeBuscaLike varchar := ('%'|| $1 || '%');
+begin 	
+  return 
+			query select json_agg(row_to_json(t) order by length(nome) asc) as servicos
+					from (
+					  select s.pk_id_servico, s.nome
+					  from tab_servicos s
+						where s.nome ILIKE nomeBuscaLike
+					) t;
+end;
+$BODY$;
+
 -- retorna uma "página" de históricos de um carro em um determinado período.
 create or replace function lerQuantHistoricoJson(integer, timestamp, timestamp, integer, integer)  
 returns setof json

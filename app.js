@@ -54,6 +54,7 @@ router.get('/api/buscarLojasPorNome', db.getLojasMinimasPorNome);
 router.get('/api/buscarLojasCompletasPorNome', db.getPaginaLojasCompletasPorNome);
 router.get('/api/lerLojaPorId', db.getLojaCompleta);
 router.get('/api/lerCarroUsuario', db.getCarroUsuario);
+router.get('/api/buscarServicosPorNome', db.getServicosPorNome);
 router.post('/api/registrarHistorico', db.postCriarHistorico);
 router.post('/api/login', db.postCriarSessao);
 router.post('/api/registrarUsuario', db.postCriarUsuario);

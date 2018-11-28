@@ -22,6 +22,7 @@ module.exports = {
   getLojasMinimasPorNome: getLojasMinimasPorNome,
   getLojaCompleta: getLojaCompleta,
   getCarroUsuario: getCarroUsuario,
+  getServicosPorNome: getServicosPorNome,
   postCriarUsuario: postCriarUsuario,
   postCriarSessao: postCriarSessao,
   postCriarHistorico: postCriarHistorico,
@@ -320,6 +321,27 @@ function getLojasMinimasPorNome(req, res, next) {
   }
 
   db.one('select * from buscarLojasPorNome($1) as resultados', [parteNome])
+    .then(function (data) {
+      res.status(200).send(data);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
+}
+
+// Pega uma lista de nomes e ids de lojas ao ser fornecido parte de um nome
+function getServicosPorNome(req, res, next) {
+  var parteNome = req.query.nome;
+  parteNome = parteNome.trim();
+  console.log(parteNome);
+  if (typeof parteNome == 'undefined' || parteNome == "") {
+    res.status(400);
+    res.send('Parâmetros inválidos.');
+    return;
+  }
+
+  db.one('select * from buscarServicosPorNome($1) as servicos', [parteNome])
     .then(function (data) {
       res.status(200).send(data);
     })
