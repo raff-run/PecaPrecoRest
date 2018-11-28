@@ -362,7 +362,7 @@ function getPaginaHistoricos(req, res, next) {
   dataHoraFim = new Date(2020, 1, 1, 12, 1, 1);
 
 
-  db.one('select lerQuantHistoricoJson($1, $2, $3, $4, $5) as historicos', [idCarroUsuario, dataHoraInicio.toISOString(), dataHoraFim.toISOString(), quantHistorico, historicoIndex])
+  db.one('select lerQuantHistoricoJson($1, $2, $3, $4, $5) as historicos', [idCarroUsuario, null, null, quantHistorico, historicoIndex])
     .then(function (data) {
       res.status(200).send(data);
     })
