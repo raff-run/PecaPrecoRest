@@ -351,38 +351,15 @@ function getPaginaHistoricos(req, res, next) {
   var dataHoraInicio;
   var dataHoraFim;
 
-  if (isNaN(diaInicio) && isNaN(mesInicio) && isNaN(anoInicio) && isNaN(horaInicio) && isNaN(minutoInicio) && isNaN(segundoInicio)) {
-    dataHoraInicio = null;
-    //Pra passar pelo if gigante
-    diaInicio = 00;
-    mesInicio = 00;
-    anoInicio = 00;
-    horaInicio = 00;
-    minutoInicio = 00;
-    segundoInicio = 00;
-  }
-  if (isNaN(diaFim) && isNaN(mesFim) && isNaN(anoFim) && isNaN(horaFim) && isNaN(minutoFim) && isNaN(segundoFim)) {
-    dataHoraFim = null;
-    //Pra passar pelo if gigante
-    diaFim = 00;
-    mesFim = 00;
-    anoFim = 00;
-    horaFim = 00;
-    minutoFim = 00;
-    segundoFim = 00;
-  }
-
-  if (isNaN(quantHistorico) || isNaN(historicoIndex) || isNaN(idCarroUsuario)
-    || isNaN(diaInicio) || isNaN(mesInicio) || isNaN(anoInicio) || isNaN(horaInicio) || isNaN(minutoInicio) || isNaN(segundoInicio)
-    || isNaN(diaFim) || isNaN(mesFim) || isNaN(anoFim) || isNaN(horaFim) || isNaN(minutoFim) || isNaN(segundoFim)) {
+  if (isNaN(quantHistorico) || isNaN(historicoIndex) || isNaN(idCarroUsuario)) {
     res.status(400);
     res.send('Parâmetros inválidos.');
     return;
   }
 
 
-  dataHoraInicio = new Date(anoInicio, mesInicio, diaInicio, horaInicio, minutoInicio, segundoInicio);
-  dataHoraFim = new Date(anoFim, mesFim, diaFim, horaFim, minutoFim, segundoFim);
+  dataHoraInicio = new Date(0, 0, 0, 0, 0, 0);
+  dataHoraFim = new Date(2020, 1, 1, 12, 1, 1);
 
 
   db.one('select lerQuantHistoricoJson($1, $2, $3, $4, $5) as historicos', [idCarroUsuario, dataHoraInicio.toISOString(), dataHoraFim.toISOString(), quantHistorico, historicoIndex])
