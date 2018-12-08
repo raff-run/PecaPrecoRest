@@ -1,18 +1,14 @@
 # PeçaPreçoRest
 
-agora em node.js!
+Agora em node.js!
 
 Exemplo de método rest:
-
+Em routes/queries.js
 ```javascript
-/* Aqui você deve tirar os comentários do método que você fez para poder testar.
- Após fazer isso, vá em app.js e adicione uma linha router.get ou post('uri', db.<nomedasuafuncao>)
- Exemplos:
- //Rest
-  router.get('/api/lerListaLojas', db.getPaginaLojasCompletas);
-  router.get('/api/lerListaHistorico', db.getPaginaHistoricos);
-  router.get('/api/buscarLojasPorNome', db.getLojasMinimasPorNome);
- */
+/* 
+ Aqui você deve tirar os comentários do método que você fez para poder testar.
+ Ou adicionar o seu próprio método.
+*/
 module.exports = {
   getPaginaLojasCompletas: getPaginaLojasCompletas,
   getPaginaHistoricos: getPaginaHistoricos,
@@ -48,17 +44,17 @@ function getLojasMinimasPorNome(req, res, next) {
 
   // Terceira parte: Impeça parâmetros inválidos
   /*
-    Se uma variável obrigatória não for fornecida, o tipo dela vai ser 'undefined'. Então dá pra usar typeof variavel == undefined pra saber se uma variável foi passada.
+    Se uma variável obrigatória não for fornecida, o tipo dela vai ser 'undefined'. Então dá pra usar typeof variavel == undefined pra saber se o argumento foi passado ou não.
     Não dá pra permitir uma variável numérica receber letras também. Nesse caso, ao usar variavel = parseInt(parâmetro), se o parseint não achar um número no parâmetro, a função irá retornar NaN. Dessa forma dá pra ver se foi passado um número ou não usando a função isNaN(variavel).
-
-    Não exagere muito nisso e nem se preocupe com SQL injection.
+    
+    Cuidado com SQL injection. Se um argumento String passar daqui contendo um "; ALTER TABLE ... --" etc, o código injetado irá rodar no banco.
   */
   if(typeof parteNome == 'undefined' || parteNome == ""){
     // Tenha certeza de que está retornando o código HTTP certo.
     // Nesse caso, 400 representa "Requisição Inválida"
     res.status(400);
     res.send('Parâmetros inválidos.');
-    return;
+    return; // Necessário usar return depois de usar .send, pois se não o Node assume que deu tudo certo, que nada foi enviado ainda e tenta usar .send denovo, o que dá erro.
   }
   
   // Última parte: faça a consulta do PostgreSQL.
@@ -72,9 +68,10 @@ function getLojasMinimasPorNome(req, res, next) {
     e a função é chamada usando select * from nomedaFuncao(argumentos) as lojas/loja/resultados/historicos/etc.
 
     Para passar os argumentos, use $1, $2, $3, etc e então adicione a variável na posição certa no array depois da vírgula:
+    
   */
   db.one('select * from buscarLojasPorNome($1) as resultados', [parteNome])
-    .then(function (data) {
+    .then(function (data) { // Roda se o sql foi executado com sucesso
       res.status(200).send(data);
     })
     .catch(function (err) {
@@ -82,4 +79,15 @@ function getLojasMinimasPorNome(req, res, next) {
     });
   
 }
+```
+
+Em App.js
+```javascript
+ Após fazer o método em queries.js, adicione uma linha router.get ou post('uri', db.<nomedasuafuncao>)
+ Exemplos:
+ //Rest
+  router.get('/api/lerListaLojas', db.getPaginaLojasCompletas);
+  router.get('/api/lerListaHistorico', db.getPaginaHistoricos);
+  router.get('/api/buscarLojasPorNome', db.getLojasMinimasPorNome);
+ */
 ```
