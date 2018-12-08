@@ -2,6 +2,8 @@
 
 Agora em node.js!
 
+Baseado em: https://mherman.org/blog/designing-a-restful-api-with-node-and-postgres/
+
 Exemplo de método rest:
 Em routes/queries.js
 ```javascript
