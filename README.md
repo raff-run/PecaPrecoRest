@@ -64,7 +64,7 @@ function getLojasMinimasPorNome(req, res, next) {
     Ex: select * from buscarLojaPorId($1) as loja
 
     Todas as consultas são feitas do mesmo jeito, e nada do código precisa ser alterado exceto a consulta SQL e as variáveis no array depois da vírgula:
-    usa-se db.one por que o Postgres sempre retorna uma linha
+    Usa-se db.one por que o Postgres sempre retorna uma linha ao executar uma função.
     e a função é chamada usando select * from nomedaFuncao(argumentos) as lojas/loja/resultados/historicos/etc.
 
     Para passar os argumentos, use $1, $2, $3, etc e então adicione a variável na posição certa no array depois da vírgula:
